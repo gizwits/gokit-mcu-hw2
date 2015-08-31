@@ -1,45 +1,57 @@
+/**
+********************************************************
+*
+* @file      delay.c
+* @author    Gizwtis
+* @version   V2.3
+* @date      2015-07-06
+*
+* @brief     æœºæ™ºäº‘.åªä¸ºæ™ºèƒ½ç¡¬ä»¶è€Œç”Ÿ
+*            Gizwits Smart Cloud  for Smart Products
+*            é“¾æŽ¥|å¢žå€¼Öµ|å¼€æ”¾|ä¸­ç«‹|å®‰å…¨|è‡ªæœ‰|è‡ªç”±|ç”Ÿæ€
+*            www.gizwits.com
+*
+*********************************************************/
+
 #include "delay.h"
 
-
-static uint8_t  fac_us=0;																		//usÑÓÊ±±¶³ËÊý
-static uint16_t fac_ms=0;																		//msÑÓÊ±±¶³ËÊý
+static uint8_t  fac_us=0;																		//uså»¶æ—¶å€ä¹˜æ•°
+static uint16_t fac_ms=0;																		//mså»¶æ—¶å€ä¹˜æ•°
 
 void Delay_Init(uint8_t SYSCLK)
 {
-	SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);	//Ñ¡ÔñÍâ²¿Ê±ÖÓ  HCLK/8
-	fac_us=SYSCLK/8; //Ó²¼þ8·ÖÆµ,fac_usµÃ³öµÄÖµÊÇÒª¸øÏÂÃæµÄÊ±ÖÓº¯ÊýÓÃµÄ  
+	SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);	//é€‰æ‹©å¤–éƒ¨æ—¶é’Ÿ,HCLK/8
+	fac_us=SYSCLK/8; //ç¡¬ä»¶åˆ†é¢‘,fac_uså¾—å‡ºçš„å€¼è¦ç»™ä¸‹é¢çš„æ—¶é’Ÿå‡½æ•°ä½¿ç”¨
 	fac_ms =(u16)fac_us*1000; 	
-}	
-
-		    								   
+}			    								   
 void Delay_us(uint32_t nus)
 {		
 		uint32_t temp;  
-		SysTick->LOAD = nus*fac_us;  //ÑÓÊ±10usµÄ»°¾ÍÊÇ  10*9=90,×°µ½load¼Ä´æÆ÷ÖÐ  
-		SysTick->VAL=0x00;//¼ÆÊýÆ÷Çå0,ÒòÎªcurrrent×Ö¶Î±»ÊÖ¶¯ÇåÁãÊ±,load½«×Ô¶¯ÖØ×°µ½VALÖÐ  
-		SysTick->CTRL = 0x01;//ÅäÖÃÊ¹Òì³£ÉúÐ§,Ò²¾ÍÊÇ¼ÆÊýÆ÷µ¹Êýµ½0Ê±½«·¢³öÒì³£Í¨Öª  
+		SysTick->LOAD = nus*fac_us;  //å»¶æ—¶10us,10*9 = 90,è£…åˆ°loadå¯„å­˜å™¨ä¸­
+		SysTick->VAL=0x00;//è®¡æ•°å™¨æ¸…0
+		SysTick->CTRL = 0x01;//é…ç½®å¼‚å¸¸ç”Ÿæ•ˆ,ä¹Ÿå°±æ˜¯è®¡æ•°å™¨å€’æ•°åˆ°0æ—¶å‘å‡ºå¼‚å¸¸é€šçŸ¥
 		do  
 		{  
-			 temp = SysTick->CTRL;  //Ê±¼äµ½ÁËÖ®ºó,¸ÃÎ»½«±»Ó²¼þÖÃ1,µ«±»²éÑ¯ºó×Ô¶¯Çå0  
+			 temp = SysTick->CTRL;//æ—¶é—´åˆ°,è¯¥ä½å°†è¢«ç¡¬ä»¶ç½®1,ä½†è¢«æŸ¥è¯¢åŽè‡ªåŠ¨æ¸…0
 		}  
-		while(temp & 0x01 && !(temp &(1<<16))); //²éÑ¯  	
-		SysTick->CTRL = 0x00;  //¹Ø±Õ¼ÆÊýÆ÷  
-		SysTick->VAL = 0x00;   //Çå¿Õval      																//Çå¿Õ¼ÆÊýÆ÷	 
+		while(temp & 0x01 && !(temp &(1<<16)));//æŸ¥è¯¢
+		SysTick->CTRL = 0x00;//å…³é—­å®šæ—¶å™¨
+		SysTick->VAL = 0x00;//æ¸…ç©ºval,æ¸…ç©ºå®šæ—¶å™¨
 }
 
 
 void Delay_ms(uint16_t nms)
 {	 		  	  
 		uint32_t temp;  
-		SysTick->LOAD = nms*fac_ms;  //ÑÓÊ±10usµÄ»°¾ÍÊÇ  10*9=90,×°µ½load¼Ä´æÆ÷ÖÐ  
-		SysTick->VAL=0x00;//¼ÆÊýÆ÷Çå0,ÒòÎªcurrrent×Ö¶Î±»ÊÖ¶¯ÇåÁãÊ±,load½«×Ô¶¯ÖØ×°µ½VALÖÐ  
-		SysTick->CTRL = 0x01;//ÅäÖÃÊ¹Òì³£ÉúÐ§,Ò²¾ÍÊÇ¼ÆÊýÆ÷µ¹Êýµ½0Ê±½«·¢³öÒì³£Í¨Öª  
+		SysTick->LOAD = nms*fac_ms;//å»¶æ—¶10ms,10*9 = 90,è£…åˆ°loadå¯„å­˜å™¨ä¸­
+		SysTick->VAL=0x00;//è®¡æ•°å™¨æ¸…0
+		SysTick->CTRL = 0x01;//é…ç½®å¼‚å¸¸ç”Ÿæ•ˆ,ä¹Ÿå°±æ˜¯è®¡æ•°å™¨å€’æ•°åˆ°0æ—¶å‘å‡ºå¼‚å¸¸é€šçŸ¥
 		do  
 		{  
-			 temp = SysTick->CTRL;  //Ê±¼äµ½ÁËÖ®ºó,¸ÃÎ»½«±»Ó²¼þÖÃ1,µ«±»²éÑ¯ºó×Ô¶¯Çå0  
+			 temp = SysTick->CTRL;//æ—¶é—´åˆ°,è¯¥ä½å°†è¢«ç¡¬ä»¶ç½®1,ä½†è¢«æŸ¥è¯¢åŽè‡ªåŠ¨æ¸…0
 		}  
-		while(temp & 0x01 && !(temp &(1<<16))); //²éÑ¯  
+		while(temp & 0x01 && !(temp &(1<<16)));//æŸ¥è¯¢
 	
-		SysTick->CTRL = 0x00;  //¹Ø±Õ¼ÆÊýÆ÷  
-		SysTick->VAL = 0x00;   //Çå¿Õval   	  	    
+		SysTick->CTRL = 0x00;//å…³é—­å®šæ—¶å™¨
+		SysTick->VAL = 0x00;//æ¸…ç©ºval,æ¸…ç©ºå®šæ—¶å™¨
 } 
